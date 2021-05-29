@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: Weather App
+Implementation-Version: 1.0.0
+Built-By: vgang
+Implementation-Vendor-Id: com.sapient.weather
+Build-Jdk: 1.8.0_282
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/weather-app
+Created-By: Maven Integration for Eclipse
+
