@@ -1,0 +1,56 @@
+{
+	"cod": "200",
+	"message": 0,
+	"cnt": 40,
+	"list": [
+		{
+			"dt": 1622376000,
+			"main": {
+				"temp": 303.27,
+				"feels_like": 303.77,
+				"temp_min": 95,
+				"temp_max": 99,
+				"pressure": 963,
+				"sea_level": 963,
+				"grnd_level": 908,
+				"humidity": 46,
+				"temp_kf": 0.69
+			},
+			"weather": [
+				{
+					"id": 802,
+					"main": "Clouds",
+					"description": "light rain",
+					"icon": "03d"
+				}
+			],
+			"clouds": {
+				"all": 42
+			},
+			"wind": {
+				"speed": 6.45,
+				"deg": 246,
+				"gust": 6.84
+			},
+			"visibility": 10000,
+			"pop": 0,
+			"sys": {
+				"pod": "d"
+			},
+			"dt_txt": "2021-05-30 12:00:00"
+		}
+	],
+	"city": {
+		"id": 1277333,
+		"name": "Bengaluru",
+		"coord": {
+			"lat": 12.9762,
+			"lon": 77.6033
+		},
+		"country": "IN",
+		"population": 5104047,
+		"timezone": 19800,
+		"sunrise": 1622334149,
+		"sunset": 1622380326
+	}
+}

@@ -1,9 +1,11 @@
 package com.sapient.service;
 
 import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.function.Supplier;
@@ -68,31 +70,49 @@ public class WeatherForecastServiceImpl implements IWeatherForecastService {
 			WeatherInfo weatherInfo = new WeatherInfo();
 			List<Double> highTemperature = new ArrayList<>();
 			List<Double> lowTemperature = new ArrayList<>();
-			ZonedDateTime now = ZonedDateTime.now();
-			Long afterThreeDays = now.plusDays(3).toLocalDate().toEpochDay();
 			Supplier<Stream<WeatherData>> filter = () -> weatherForecast.getWeatherData().stream().filter(data -> {
-				return Date.from(Instant.ofEpochMilli(data.getDt()))
-						.after(Date.from(Instant.ofEpochMilli(afterThreeDays)));
+				return ChronoUnit.DAYS.between(
+						LocalDate.parse(LocalDate.now().toString(), DateTimeFormatter.ISO_LOCAL_DATE),
+						Instant.ofEpochMilli(data.getDt()).atZone(ZoneId.systemDefault()).toLocalDate()) <= 3;
 			});
+			// show the user weather 3 days high, low temperature
 			filter.get().forEach(weatherData -> {
 				highTemperature.add(weatherData.getMain().getTempMax());
 				lowTemperature.add(weatherData.getMain().getTempMin());
 			});
+			weatherInfo.setHighTemperature(highTemperature);
+			weatherInfo.setLowTemperature(lowTemperature);
+			
+			// Check if temperature is crossing maxTemperature, then send message "carry umbrella"
 			DoubleSummaryStatistics temperatureStats = filter.get().mapToDouble(weatherData -> {
 				return (weatherData.getMain().getTempMax() + weatherData.getMain().getTempMin()) / 2;
 			}).summaryStatistics();
+			
+			if (temperatureStats.getAverage() > maxTemperature) {
+				weatherInfo.setWeatherMessage("Use sunscreen lotion");
+			}
+			
+			// Check if wind speed is crossing maxWind, then send message "too windy"
 			DoubleSummaryStatistics windStats = filter.get()
 					.mapToDouble(weatherData -> weatherData.getWind().getSpeed())
 					.summaryStatistics();
-			if (temperatureStats.getAverage() > maxTemperature) {
-				weatherInfo.setWeatherMessage("Use sunscreen lotion");
-			} else if (windStats.getAverage() > maxWind) {
-				weatherInfo.setWeatherMessage("too windy");
-			} else {
-				weatherInfo.setWeatherMessage("carry umbrella");
+			 if (windStats.getAverage() > maxWind) {
+				 weatherInfo.setWeatherMessage("too windy");
+				//weatherInfo.setWeatherMessage(weatherInfo.getWeatherMessage() + " too windy");
 			}
-			weatherInfo.setHighTemperature(highTemperature);
-			weatherInfo.setLowTemperature(lowTemperature);
+
+			// Check if it's rainy.
+			boolean isRainy = filter.get().anyMatch(weatherData -> {
+				return weatherData.getWeather().stream().anyMatch(rainData -> {
+					return rainData.getDescription().contains("rain");
+				});
+			});
+
+			if (isRainy) {
+				weatherInfo.setWeatherMessage("carry umbrella");
+				//weatherInfo.setWeatherMessage(weatherInfo.getWeatherMessage() + " carry umbrella");
+			}
+
 			return weatherInfo;
 		} catch (Exception e) {
 			throw new WeatherForecastException(e.getMessage(), e);
